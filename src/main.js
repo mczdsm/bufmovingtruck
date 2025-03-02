@@ -131,7 +131,7 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowLeft') {
         keys.left = true;
     } else if (event.key === 'ArrowRight') {
-        keys.right = true; // Corrected line
+        keys.right = true; // Changed from false to true
     }
 });
 
