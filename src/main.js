@@ -121,7 +121,56 @@ function addBox() {
   return box;
 }
 
-// Keyboard controls - same as before
+// --- Mobile Controls ---
+
+// Dragging variables
+let touchStartX = 0;
+let truckStartPositionX = 0;
+const dragSensitivity = 0.01; // Adjust for drag sensitivity
+
+// Touch event handlers
+document.addEventListener('touchstart', (event) => {
+    touchStartX = event.touches[0].clientX;
+    truckStartPositionX = truckBody.position.x;
+});
+
+document.addEventListener('touchmove', (event) => {
+    const touchCurrentX = event.touches[0].clientX;
+    const deltaX = touchCurrentX - touchStartX;
+    const forceX = deltaX * dragSensitivity;
+
+    Matter.Body.applyForce(truckBody, truckBody.position, { x: forceX, y: 0 });
+
+    // Limit angular velocity for wheels during dragging
+    Matter.Body.setAngularVelocity(wheelA, Math.max(-0.2, Math.min(0.2, wheelA.angularVelocity + forceX)));
+    Matter.Body.setAngularVelocity(wheelB, Math.max(-0.2, Math.min(0.2, wheelB.angularVelocity + forceX)));
+});
+
+document.addEventListener('touchend', (event) => {
+    // No specific action on touch end, but you could add inertia here if desired
+});
+
+// Tilting variables
+const tiltSensitivity = 0.005; // Adjust for tilt sensitivity
+
+// Device orientation event handler (for tilting)
+window.addEventListener('deviceorientation', (event) => {
+    const tilt = event.beta;  // Front-to-back tilt in degrees
+
+    // Adjust force based on tilt.  Clamp tilt to +/- 45 degrees for reasonable control.
+    const clampedTilt = Math.max(-45, Math.min(45, tilt));
+    const forceX = clampedTilt * tiltSensitivity;
+
+    Matter.Body.applyForce(truckBody, truckBody.position, { x: forceX, y: 0 });
+
+    // Limit angular velocity for wheels during tilting
+    Matter.Body.setAngularVelocity(wheelA, Math.max(-0.2, Math.min(0.2, wheelA.angularVelocity + forceX)));
+    Matter.Body.setAngularVelocity(wheelB, Math.max(-0.2, Math.min(0.2, wheelB.angularVelocity + forceX)));
+});
+
+// --- End Mobile Controls ---
+
+// Keyboard controls
 const keys = {
     left: false,
     right: false
@@ -131,7 +180,7 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowLeft') {
         keys.left = true;
     } else if (event.key === 'ArrowRight') {
-        keys.right = true; // Changed from false to true
+        keys.right = true;
     }
 });
 
